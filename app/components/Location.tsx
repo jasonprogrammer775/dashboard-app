@@ -1,41 +1,22 @@
+"use client";
+import useGeolocation from '../hooks/useGeolocation';
 
+const Location = () => {
+  const { location, error } = useGeolocation();
 
-
-
-
-"use client"; // Ensure this runs on the client side
-
-import { useState, useEffect } from "react";
-
-const useGeolocation = () => {
-  const [location, setLocation] = useState<{ lat: number | null; lon: number | null }>({
-    lat: null,
-    lon: null,
-  });
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        });
-      },
-      (err) => {
-        setError(err.message);
-      }
-    );
-  }, []);
-
-  return { location, error };
+  return (
+    <div className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg">
+      <h3 className="text-xl font-semibold">Your Location</h3>
+      {error ? (
+        <p className="text-red-500 mt-2">{error}</p>
+      ) : (
+        <div className="mt-4">
+          <p className="text-gray-300">Latitude: {location.lat || 'Loading...'}</p>
+          <p className="text-gray-300">Longitude: {location.lon || 'Loading...'}</p>
+        </div>
+      )}
+    </div>
+  );
 };
 
-export default useGeolocation;
-
-
+export default Location;

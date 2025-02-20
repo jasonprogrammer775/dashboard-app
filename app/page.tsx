@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from 'next/image';
 import HackerNews from './HackerNews';
+import Location from './components/Location';
 
 
 // Define the structure for GitHub user data
@@ -144,21 +145,21 @@ export default function HomePage() {
 
         {/* GitHub Repos Card */}
         <motion.div
-          className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg"
+          className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg h-96 overflow-y-auto"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
           <h3 className="text-xl font-semibold">GitHub Repositories</h3>
           {repos.length > 0 ? (
-            <ul className="mt-4">
+            <ul className="mt-4 space-y-2">
               {repos.map((repo) => (
-                <li key={repo.name} className="text-gray-300 mt-2">
-                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
+                <li key={repo.name} className="text-gray-300">
+                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">
                     {repo.name}
                   </a>
-                  <p>{repo.description}</p>
-                  <p>Stars: {repo.stargazers_count} | Forks: {repo.forks_count}</p>
+                  <p className="text-sm line-clamp-1">{repo.description}</p>
+                  <p className="text-xs">Stars: {repo.stargazers_count} | Forks: {repo.forks_count}</p>
                 </li>
               ))}
             </ul>
@@ -192,16 +193,16 @@ export default function HomePage() {
           )}
         </motion.div>
       </div>
+
+      {/* Small Location Card */}
+      <motion.div
+        className="bg-white/10 p-2 rounded-lg shadow-lg backdrop-blur-lg w-64 mt-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <Location />
+      </motion.div>
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-
