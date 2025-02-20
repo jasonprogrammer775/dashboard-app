@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Image from 'next/image';
-import HackerNews from './HackerNews';
-import Location from './components/Location';
-
+import Image from "next/image";
+import HackerNews from "./HackerNews";
+import Location from "./components/Location";
 
 // Define the structure for GitHub user data
 interface GitHubUserData {
@@ -46,35 +45,42 @@ export default function HomePage() {
     async function fetchData() {
       try {
         // Fetch user data
-        const userResponse = await fetch('/api/github');
+        const userResponse = await fetch("/api/github");
         const userData: GitHubUserData = await userResponse.json();
         setUserData(userData);
 
         // Fetch user repos
-        const reposResponse = await fetch(`https://api.github.com/users/${userData.login}/repos`);
+        const reposResponse = await fetch(
+          `https://api.github.com/users/${userData.login}/repos`
+        );
         const reposData: GitHubRepo[] = await reposResponse.json();
         setRepos(reposData);
       } catch (err) {
-        setError('Error fetching data');
-        console.error('Error fetching data:', err);
+        setError("Error fetching data");
+        console.error("Error fetching data:", err);
       }
 
       try {
         // Fetch Dev.to profile information
-        const devToProfileResponse = await fetch(`https://dev.to/api/users/by_username?url=jasonprogrammer775`); // Replace 'your_username' with your actual Dev.to username
-        const devToProfileData: DevToProfile = await devToProfileResponse.json();
-        console.log('Dev.to Profile:', devToProfileData); // Log profile data to console
-
+        const devToProfileResponse = await fetch(
+          `https://dev.to/api/users/by_username?url=jasonprogrammer775`
+        ); // Replace 'your_username' with your actual Dev.to username
+        const devToProfileData: DevToProfile =
+          await devToProfileResponse.json();
+        console.log("Dev.to Profile:", devToProfileData); // Log profile data to console
 
         setDevToProfile(devToProfileData);
 
         // Fetch Dev.to articles from your profile
-        const devToArticlesResponse = await fetch(`https://dev.to/api/articles?username=jasonprogrammer775`); // Replace 'your_username' with your actual Dev.to username
-        const devToArticlesData: DevToArticle[] = await devToArticlesResponse.json();
+        const devToArticlesResponse = await fetch(
+          `https://dev.to/api/articles?username=jasonprogrammer775`
+        ); // Replace 'your_username' with your actual Dev.to username
+        const devToArticlesData: DevToArticle[] =
+          await devToArticlesResponse.json();
         setDevToArticles(devToArticlesData);
       } catch (err) {
-        setError('Error fetching data');
-        console.error('Error fetching data:', err);
+        setError("Error fetching data");
+        console.error("Error fetching data:", err);
       }
     }
 
@@ -89,8 +95,7 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-       <HackerNews />
-  
+        <HackerNews />
       </motion.h1>
 
       {/* Error message */}
@@ -106,13 +111,13 @@ export default function HomePage() {
         >
           <h3 className="text-xl font-semibold">Dev.to Profile</h3>
           <div className="flex items-center mt-4">
-          <Image
-  src={devToProfile?.profile_image || '/default-image.jpg'}
-  alt={devToProfile?.username || 'Profile'}
-  className="w-12 h-12 rounded-full"
-  width={48} // Set width and height explicitly
-  height={48} // Set width and height explicitly
-/>
+            <Image
+              src={devToProfile?.profile_image || "/default-image.jpg"}
+              alt={devToProfile?.username || "Profile"}
+              className="w-12 h-12 rounded-full"
+              width={48} // Set width and height explicitly
+              height={48} // Set width and height explicitly
+            />
 
             <div className="ml-4">
               <h4 className="text-gray-300">{devToProfile.name}</h4>
@@ -136,7 +141,18 @@ export default function HomePage() {
             <div className="mt-4">
               <p className="text-gray-300 mt-2">Username: {userData.login}</p>
               <p className="text-gray-300 mt-2">Name: {userData.name}</p>
-              <p className="text-gray-300 mt-2">Public Repos: {userData.public_repos}</p>
+              <p className="text-gray-300 mt-2">
+                Public Repos: {userData.public_repos}
+              </p>
+              <div className="mt-4">
+                <Image
+                  src="https://wakatime.com/badge/user/355bfc85-b797-4c4e-9f20-9e4f7287ed02.svg"
+                  alt="WakaTime"
+                  className="w-full max-w-xs"
+                  width={200} // Set appropriate width
+                  height={50} // Set appropriate height
+                />
+              </div>
             </div>
           ) : (
             <p className="text-gray-300">Loading user data...</p>
@@ -155,11 +171,18 @@ export default function HomePage() {
             <ul className="mt-4 space-y-2">
               {repos.map((repo) => (
                 <li key={repo.name} className="text-gray-300">
-                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">
+                  <a
+                    href={repo.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-300"
+                  >
                     {repo.name}
                   </a>
                   <p className="text-sm line-clamp-1">{repo.description}</p>
-                  <p className="text-xs">Stars: {repo.stargazers_count} | Forks: {repo.forks_count}</p>
+                  <p className="text-xs">
+                    Stars: {repo.stargazers_count} | Forks: {repo.forks_count}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -180,11 +203,18 @@ export default function HomePage() {
             <ul className="mt-4">
               {devToArticles.map((article) => (
                 <li key={article.url} className="text-gray-300 mt-2">
-                  <a href={article.url} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={article.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {article.title}
                   </a>
                   <p>{article.description}</p>
-                  <p>Published on: {new Date(article.published_at).toLocaleDateString()}</p>
+                  <p>
+                    Published on:{" "}
+                    {new Date(article.published_at).toLocaleDateString()}
+                  </p>
                 </li>
               ))}
             </ul>
