@@ -1,101 +1,207 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import Image from 'next/image';
+import HackerNews from './HackerNews';
 
-export default function Home() {
+
+// Define the structure for GitHub user data
+interface GitHubUserData {
+  login: string;
+  name: string;
+  public_repos: number;
+}
+
+interface GitHubRepo {
+  name: string;
+  html_url: string;
+  description: string;
+  forks_count: number;
+  stargazers_count: number;
+}
+
+interface DevToArticle {
+  title: string;
+  url: string;
+  description: string;
+  published_at: string;
+}
+
+interface DevToProfile {
+  username: string;
+  name: string;
+  bio: string;
+  profile_image: string;
+}
+
+export default function HomePage() {
+  const [userData, setUserData] = useState<GitHubUserData | null>(null);
+  const [repos, setRepos] = useState<GitHubRepo[]>([]); // State to hold repos
+  const [error, setError] = useState<string | null>(null);
+  const [devToArticles, setDevToArticles] = useState<DevToArticle[]>([]); // State to hold Dev.to articles
+  const [devToProfile, setDevToProfile] = useState<DevToProfile | null>(null); // State for Dev.to profile
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch user data
+        const userResponse = await fetch('/api/github');
+        const userData: GitHubUserData = await userResponse.json();
+        setUserData(userData);
+
+        // Fetch user repos
+        const reposResponse = await fetch(`https://api.github.com/users/${userData.login}/repos`);
+        const reposData: GitHubRepo[] = await reposResponse.json();
+        setRepos(reposData);
+      } catch (err) {
+        setError('Error fetching data');
+        console.error('Error fetching data:', err);
+      }
+
+      try {
+        // Fetch Dev.to profile information
+        const devToProfileResponse = await fetch(`https://dev.to/api/users/by_username?url=jasonprogrammer775`); // Replace 'your_username' with your actual Dev.to username
+        const devToProfileData: DevToProfile = await devToProfileResponse.json();
+        console.log('Dev.to Profile:', devToProfileData); // Log profile data to console
+
+
+        setDevToProfile(devToProfileData);
+
+        // Fetch Dev.to articles from your profile
+        const devToArticlesResponse = await fetch(`https://dev.to/api/articles?username=jasonprogrammer775`); // Replace 'your_username' with your actual Dev.to username
+        const devToArticlesData: DevToArticle[] = await devToArticlesResponse.json();
+        setDevToArticles(devToArticlesData);
+      } catch (err) {
+        setError('Error fetching data');
+        console.error('Error fetching data:', err);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <main className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 text-white flex flex-col items-center justify-center p-2">
+      <motion.h1
+        className="text-2xl font-extrabold text-center mb-2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+       <HackerNews />
+  
+      </motion.h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      {/* Error message */}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {/* Dev.to Profile Card */}
+      {devToProfile && (
+        <motion.div
+          className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-full max-w-7xl mb-8"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
         >
+          <h3 className="text-xl font-semibold">Dev.to Profile</h3>
+          <div className="flex items-center mt-4">
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  src={devToProfile?.profile_image || '/default-image.jpg'}
+  alt={devToProfile?.username || 'Profile'}
+  className="w-12 h-12 rounded-full"
+  width={48} // Set width and height explicitly
+  height={48} // Set width and height explicitly
+/>
+
+            <div className="ml-4">
+              <h4 className="text-gray-300">{devToProfile.name}</h4>
+              <p className="text-gray-300">{devToProfile.bio}</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl mb-8">
+        {/* GitHub Data Card */}
+        <motion.div
+          className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <h3 className="text-xl font-semibold">GitHub User Data</h3>
+          {userData ? (
+            <div className="mt-4">
+              <p className="text-gray-300 mt-2">Username: {userData.login}</p>
+              <p className="text-gray-300 mt-2">Name: {userData.name}</p>
+              <p className="text-gray-300 mt-2">Public Repos: {userData.public_repos}</p>
+            </div>
+          ) : (
+            <p className="text-gray-300">Loading user data...</p>
+          )}
+        </motion.div>
+
+        {/* GitHub Repos Card */}
+        <motion.div
+          className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <h3 className="text-xl font-semibold">GitHub Repositories</h3>
+          {repos.length > 0 ? (
+            <ul className="mt-4">
+              {repos.map((repo) => (
+                <li key={repo.name} className="text-gray-300 mt-2">
+                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
+                    {repo.name}
+                  </a>
+                  <p>{repo.description}</p>
+                  <p>Stars: {repo.stargazers_count} | Forks: {repo.forks_count}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-300">Loading repositories...</p>
+          )}
+        </motion.div>
+
+        {/* Dev.to Articles Card */}
+        <motion.div
+          className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          <h3 className="text-xl font-semibold">Dev.to Articles</h3>
+          {devToArticles.length > 0 ? (
+            <ul className="mt-4">
+              {devToArticles.map((article) => (
+                <li key={article.url} className="text-gray-300 mt-2">
+                  <a href={article.url} target="_blank" rel="noopener noreferrer">
+                    {article.title}
+                  </a>
+                  <p>{article.description}</p>
+                  <p>Published on: {new Date(article.published_at).toLocaleDateString()}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-300">Loading articles...</p>
+          )}
+        </motion.div>
+      </div>
+    </main>
   );
 }
+
+
+
+
+
+
+
+
+
+
