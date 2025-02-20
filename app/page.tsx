@@ -41,6 +41,15 @@ interface WeatherData {
   icon: string;
 }
 
+interface CryptoData {
+  id: string;
+  name: string;
+  symbol: string;
+  current_price: number;
+  price_change_percentage_24h: number;
+  image: string;
+}
+
 export default function HomePage() {
   const [userData, setUserData] = useState<GitHubUserData | null>(null);
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
@@ -48,6 +57,7 @@ export default function HomePage() {
   const [devToArticles, setDevToArticles] = useState<DevToArticle[]>([]);
   const [devToProfile, setDevToProfile] = useState<DevToProfile | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [cryptoData, setCryptoData] = useState<CryptoData[] | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -102,6 +112,19 @@ export default function HomePage() {
     }
 
     fetchWeather();
+
+    // Fetch crypto data
+    async function fetchCrypto() {
+      try {
+        const response = await fetch('/api/crypto');
+        const data = await response.json();
+        setCryptoData(data);
+      } catch (error) {
+        console.error('Error fetching crypto data:', error);
+      }
+    }
+
+    fetchCrypto();
   }, []);
 
   return (
@@ -254,6 +277,45 @@ export default function HomePage() {
         </motion.div>
       </div>
 
+      {/* Crypto Card */}
+      <motion.div
+        className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-full max-w-7xl mt-8"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <h3 className="text-xl font-semibold mb-4">Top Cryptocurrencies</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {cryptoData?.map((coin) => (
+            <div key={coin.id} className="flex items-center space-x-4">
+              <Image
+                src={coin.image}
+                alt={coin.name}
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
+              <div>
+                <p className="text-gray-300 font-medium">
+                  {coin.name} ({coin.symbol})
+                </p>
+                <p className="text-gray-300">
+                  ${coin.current_price.toLocaleString()}
+                </p>
+                <p
+                  className={`text-sm ${
+                    coin.price_change_percentage_24h >= 0
+                      ? 'text-green-400'
+                      : 'text-red-400'
+                  }`}
+                >
+                  {coin.price_change_percentage_24h.toFixed(2)}%
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </main>
   );
 }

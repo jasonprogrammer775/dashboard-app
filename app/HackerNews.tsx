@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 
 interface HackerNewsPost {
+  id: number;
   title: string;
   url: string;
   by: string;
   time: number;
 }
+
 
 const HackerNews = () => {
   const [posts, setPosts] = useState<HackerNewsPost[]>([]);
@@ -46,7 +48,8 @@ const HackerNews = () => {
       <h3 className="text-xl font-semibold">Hacker News</h3>
       <ul className="mt-4">
         {posts.map((post) => (
-          <li key={post.url} className="text-gray-300 mt-2">
+          <li key={post.id} className="text-gray-300 mt-2">
+
             <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
               {post.title}
             </a>
@@ -59,4 +62,3 @@ const HackerNews = () => {
 };
 
 export default HackerNews;
-

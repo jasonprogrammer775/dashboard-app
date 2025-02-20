@@ -1,8 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['openweathermap.org', 'media2.dev.to'],
+    domains: [
+      'openweathermap.org',
+      'media2.dev.to',
+      'coin-images.coingecko.com'
+    ],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
