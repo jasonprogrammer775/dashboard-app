@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from 'next/image';
+import Image from "next/image";
 import { motion } from "framer-motion";
 import HackerNews from "./HackerNews";
 import Location from "./components/Location";
@@ -50,6 +50,29 @@ interface CryptoData {
   image: string;
 }
 
+interface SlackMessage {
+  message: string;
+  channel: string;
+  timestamp?: string;
+}
+
+interface MarsWeatherData {
+  AT: {
+    av: number;
+  };
+  PRE: {
+    av: number;
+  };
+  HWS: {
+    av: number;
+  };
+}
+
+interface MarsWeather {
+  sol_keys: string[];
+  [key: string]: MarsWeatherData | string[];
+}
+
 export default function HomePage() {
   const [userData, setUserData] = useState<GitHubUserData | null>(null);
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
@@ -58,6 +81,34 @@ export default function HomePage() {
   const [devToProfile, setDevToProfile] = useState<DevToProfile | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [cryptoData, setCryptoData] = useState<CryptoData[] | null>(null);
+  const [slackMessage, setSlackMessage] = useState("");
+  const [slackChannel, setSlackChannel] = useState("");
+  const [slackResult, setSlackResult] = useState<SlackMessage | null>(null);
+  const [isSendingSlack, setIsSendingSlack] = useState(false);
+  const [marsWeather, setMarsWeather] = useState<MarsWeather | null>(null);
+  const sendSlackMessage = async () => {
+    if (!slackMessage || !slackChannel) return;
+
+    setIsSendingSlack(true);
+    try {
+      const response = await fetch("/api/slack", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: slackMessage,
+          channel: slackChannel,
+        }),
+      });
+      const result = await response.json();
+      setSlackResult(result);
+    } catch (error) {
+      console.error("Error sending Slack message:", error);
+    } finally {
+      setIsSendingSlack(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -83,14 +134,16 @@ export default function HomePage() {
         const devToProfileResponse = await fetch(
           `https://dev.to/api/users/by_username?url=jasonprogrammer775`
         );
-        const devToProfileData: DevToProfile = await devToProfileResponse.json();
+        const devToProfileData: DevToProfile =
+          await devToProfileResponse.json();
         setDevToProfile(devToProfileData);
 
         // Fetch Dev.to articles
         const devToArticlesResponse = await fetch(
           `https://dev.to/api/articles?username=jasonprogrammer775`
         );
-        const devToArticlesData: DevToArticle[] = await devToArticlesResponse.json();
+        const devToArticlesData: DevToArticle[] =
+          await devToArticlesResponse.json();
         setDevToArticles(devToArticlesData);
       } catch (err) {
         setError("Error fetching data");
@@ -103,11 +156,11 @@ export default function HomePage() {
     // Fetch weather data
     async function fetchWeather() {
       try {
-        const response = await fetch('/api/weather');
+        const response = await fetch("/api/weather");
         const data = await response.json();
         setWeatherData(data);
       } catch (error) {
-        console.error('Error fetching weather data:', error);
+        console.error("Error fetching weather data:", error);
       }
     }
 
@@ -116,15 +169,42 @@ export default function HomePage() {
     // Fetch crypto data
     async function fetchCrypto() {
       try {
-        const response = await fetch('/api/crypto');
+        const response = await fetch("/api/crypto");
         const data = await response.json();
         setCryptoData(data);
       } catch (error) {
-        console.error('Error fetching crypto data:', error);
+        console.error("Error fetching crypto data:", error);
       }
     }
 
     fetchCrypto();
+
+    // Fetch Mars weather data
+    async function fetchMarsWeather() {
+      try {
+        // First try local API
+        const localResponse = await fetch("/api/nasa/marsWeather");
+        if (localResponse.ok) {
+          const data = await localResponse.json();
+          setMarsWeather(data);
+          return;
+        }
+        
+        // Fallback to public NASA API
+        const publicResponse = await fetch("https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0");
+        if (!publicResponse.ok) {
+          throw new Error(`NASA API error: ${publicResponse.status}`);
+        }
+        const data = await publicResponse.json();
+        setMarsWeather(data);
+      } catch (error) {
+        console.error("Error fetching Mars weather:", error);
+        setMarsWeather(null);
+      }
+    }
+
+    fetchMarsWeather();
+
   }, []);
 
   return (
@@ -148,7 +228,9 @@ export default function HomePage() {
               <div className="ml-4">
                 <p className="text-gray-300">{weatherData.location}</p>
                 <p className="text-gray-300">{weatherData.temperature}°C</p>
-                <p className="text-gray-300 capitalize">{weatherData.weather}</p>
+                <p className="text-gray-300 capitalize">
+                  {weatherData.weather}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -161,7 +243,34 @@ export default function HomePage() {
         >
           <Location />
         </motion.div>
+
       </div>
+      {marsWeather && (
+        <motion.div
+          className="absolute top-4 right-4 bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-64"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          <h3 className="text-xl font-semibold">Mars Weather</h3>
+          {marsWeather.sol_keys.slice(0, 1).map((sol) => (
+            <div key={sol} className="mt-2">
+              <p className="text-gray-300">Sol {sol}</p>
+              <p className="text-gray-300">
+                Temp: {(marsWeather[sol] as MarsWeatherData)?.AT?.av}°C
+              </p>
+              <p className="text-gray-300">
+                Wind: {(marsWeather[sol] as MarsWeatherData)?.HWS?.av} m/s
+              </p>
+              <p className="text-gray-300">
+                Pressure: {(marsWeather[sol] as MarsWeatherData)?.PRE?.av} Pa
+              </p>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
+
       <motion.h1
         className="text-2xl font-extrabold text-center mb-2"
         initial={{ opacity: 0, y: -20 }}
@@ -183,8 +292,8 @@ export default function HomePage() {
           <h3 className="text-xl font-semibold">Dev.to Profile</h3>
           <div className="flex items-center mt-4">
             <Image
-              src={devToProfile?.profile_image || "/default-image.jpg"}
-              alt={devToProfile?.username || "Profile"}
+              src={devToProfile.profile_image}
+              alt={devToProfile.username}
               className="w-12 h-12 rounded-full"
               width={48}
               height={48}
@@ -210,7 +319,9 @@ export default function HomePage() {
             <div className="mt-4">
               <p className="text-gray-300 mt-2">Username: {userData.login}</p>
               <p className="text-gray-300 mt-2">Name: {userData.name}</p>
-              <p className="text-gray-300 mt-2">Public Repos: {userData.public_repos}</p>
+              <p className="text-gray-300 mt-2">
+                Public Repos: {userData.public_repos}
+              </p>
             </div>
           ) : (
             <p className="text-gray-300">Loading user data...</p>
@@ -238,7 +349,9 @@ export default function HomePage() {
                     {repo.name}
                   </a>
                   <p className="text-sm line-clamp-1">{repo.description}</p>
-                  <p className="text-xs">Stars: {repo.stargazers_count} | Forks: {repo.forks_count}</p>
+                  <p className="text-xs">
+                    Stars: {repo.stargazers_count} | Forks: {repo.forks_count}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -267,7 +380,10 @@ export default function HomePage() {
                     {article.title}
                   </a>
                   <p>{article.description}</p>
-                  <p>Published on: {new Date(article.published_at).toLocaleDateString()}</p>
+                  <p>
+                    Published on:{" "}
+                    {new Date(article.published_at).toLocaleDateString()}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -305,8 +421,8 @@ export default function HomePage() {
                 <p
                   className={`text-sm ${
                     coin.price_change_percentage_24h >= 0
-                      ? 'text-green-400'
-                      : 'text-red-400'
+                      ? "text-green-400"
+                      : "text-red-400"
                   }`}
                 >
                   {coin.price_change_percentage_24h.toFixed(2)}%
@@ -316,6 +432,46 @@ export default function HomePage() {
           ))}
         </div>
       </motion.div>
+
+      {/* Slack Integration Section */}
+      <motion.div
+        className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-full max-w-7xl mt-8"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <h3 className="text-xl font-semibold mb-4">Send Slack Message</h3>
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Enter channel name"
+            value={slackChannel}
+            onChange={(e) => setSlackChannel(e.target.value)}
+            className="w-full p-2 rounded bg-white/10 text-white placeholder-gray-300"
+          />
+          <textarea
+            placeholder="Enter your message"
+            value={slackMessage}
+            onChange={(e) => setSlackMessage(e.target.value)}
+            className="w-full p-2 rounded bg-white/10 text-white placeholder-gray-300"
+            rows={3}
+          />
+          <button
+            onClick={sendSlackMessage}
+            disabled={isSendingSlack}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          >
+            {isSendingSlack ? "Sending..." : "Send Message"}
+          </button>
+          {slackResult && (
+            <div className="mt-4 text-green-400">
+              Message sent successfully! Timestamp: {slackResult.timestamp}
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+
     </main>
   );
 }
