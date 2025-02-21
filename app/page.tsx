@@ -56,6 +56,16 @@ interface SlackMessage {
   timestamp?: string;
 }
 
+interface NewsArticle {
+  title: string;
+  url: string;
+  description: string;
+  publishedAt: string;
+  source: {
+    name: string;
+  };
+}
+
 interface MarsWeatherData {
   AT: {
     av: number;
@@ -86,6 +96,7 @@ export default function HomePage() {
   const [slackResult, setSlackResult] = useState<SlackMessage | null>(null);
   const [isSendingSlack, setIsSendingSlack] = useState(false);
   const [marsWeather, setMarsWeather] = useState<MarsWeather | null>(null);
+  const [news, setNews] = useState<NewsArticle[]>([]);
   const sendSlackMessage = async () => {
     if (!slackMessage || !slackChannel) return;
 
@@ -220,7 +231,23 @@ export default function HomePage() {
     }
 
     fetchMarsWeather();
+    
+    // Fetch news data
+    async function fetchNews() {
+      try {
+        const response = await fetch("/api/news");
+        const data = await response.json();
+        if (data.articles) {
+          setNews(data.articles);
+        }
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
+    }
+    
+    fetchNews();
   }, []);
+
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 text-white flex flex-col items-center p-2">
@@ -481,6 +508,37 @@ export default function HomePage() {
               Message sent successfully! Timestamp: {slackResult.timestamp}
             </div>
           )}
+        </div>
+      </motion.div>
+
+      {/* News Section */}
+      <motion.div
+        className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-full max-w-7xl mt-8"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <h3 className="text-xl font-semibold mb-4">Top News</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {news.map((article, index) => (
+            <div key={index} className="bg-white/5 p-4 rounded-lg">
+              <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-300"
+              >
+                <h4 className="font-medium">{article.title}</h4>
+              </a>
+              <p className="text-sm text-gray-300 mt-2">{article.description}</p>
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-xs text-gray-400">{article.source.name}</p>
+                <p className="text-xs text-gray-400">
+                  {new Date(article.publishedAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </motion.div>
     </main>
