@@ -184,27 +184,42 @@ export default function HomePage() {
       try {
         // First try local API
         const localResponse = await fetch("/api/nasa/marsWeather");
+        console.log("Local API response status:", localResponse.status);
         if (localResponse.ok) {
           const data = await localResponse.json();
+          console.log("Local API data:", data);
           setMarsWeather(data);
           return;
         }
-        
+
         // Fallback to public NASA API
-        const publicResponse = await fetch("https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0");
+        const publicResponse = await fetch(
+          "https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0"
+        );
+        console.log("NASA API response status:", publicResponse.status);
         if (!publicResponse.ok) {
+          const errorText = await publicResponse.text();
+          console.error("NASA API error:", {
+            status: publicResponse.status,
+            statusText: publicResponse.statusText,
+            url: publicResponse.url,
+            responseText: errorText,
+          });
           throw new Error(`NASA API error: ${publicResponse.status}`);
         }
         const data = await publicResponse.json();
+        console.log("NASA API data:", data);
         setMarsWeather(data);
       } catch (error) {
-        console.error("Error fetching Mars weather:", error);
+        console.error("Error fetching Mars weather:", {
+          message: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : "No stack trace",
+        });
         setMarsWeather(null);
       }
     }
 
     fetchMarsWeather();
-
   }, []);
 
   return (
@@ -243,7 +258,6 @@ export default function HomePage() {
         >
           <Location />
         </motion.div>
-
       </div>
       {marsWeather && (
         <motion.div
@@ -269,7 +283,6 @@ export default function HomePage() {
           ))}
         </motion.div>
       )}
-
 
       <motion.h1
         className="text-2xl font-extrabold text-center mb-2"
@@ -470,8 +483,6 @@ export default function HomePage() {
           )}
         </div>
       </motion.div>
-
-
     </main>
   );
 }
