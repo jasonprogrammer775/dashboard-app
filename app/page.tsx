@@ -511,27 +511,28 @@ export default function HomePage() {
         </div>
       </motion.div>
 
-      {/* News Section */}
+      {/* News Section - Moved under Mars Weather */}
       <motion.div
-        className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-full max-w-7xl mt-8"
+        className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-64 mt-4"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
+        style={{ position: 'absolute', top: '24rem', right: '1rem' }}
       >
-        <h3 className="text-xl font-semibold mb-4">Top News</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <h3 className="text-lg font-semibold mb-2">Top News</h3>
+        <div className="overflow-y-auto h-64">
           {news.map((article, index) => (
-            <div key={index} className="bg-white/5 p-4 rounded-lg">
+            <div key={index} className="bg-white/5 p-2 rounded-lg mb-2">
               <a
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-300"
               >
-                <h4 className="font-medium">{article.title}</h4>
+                <h4 className="text-sm font-medium line-clamp-2">{article.title}</h4>
               </a>
-              <p className="text-sm text-gray-300 mt-2">{article.description}</p>
-              <div className="flex justify-between items-center mt-2">
+              <p className="text-xs text-gray-300 mt-1 line-clamp-2">{article.description}</p>
+              <div className="flex justify-between items-center mt-1">
                 <p className="text-xs text-gray-400">{article.source.name}</p>
                 <p className="text-xs text-gray-400">
                   {new Date(article.publishedAt).toLocaleDateString()}
