@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import HackerNews from "./HackerNews";
+import TopNews from "./components/TopNews"; // Import TopNews component
 import Location from "./components/Location";
+
+import WakaTimeStats from "./components/WakaTimeStas";
 
 // Define the structure for GitHub user data
 interface GitHubUserData {
@@ -231,7 +234,7 @@ export default function HomePage() {
     }
 
     fetchMarsWeather();
-    
+
     // Fetch news data
     async function fetchNews() {
       try {
@@ -244,10 +247,9 @@ export default function HomePage() {
         console.error("Error fetching news:", error);
       }
     }
-    
+
     fetchNews();
   }, []);
-
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 text-white flex flex-col items-center p-2">
@@ -262,10 +264,11 @@ export default function HomePage() {
             <h3 className="text-xl font-semibold">Current Weather</h3>
             <div className="mt-4 flex items-center">
               <Image
-                src={`https://openweathermap.org/img/wn/${weatherData.icon}@2x.png`}
+                src={weatherData.icon}
                 alt={weatherData.weather}
                 width={50}
                 height={50}
+                unoptimized
               />
               <div className="ml-4">
                 <p className="text-gray-300">{weatherData.location}</p>
@@ -311,6 +314,7 @@ export default function HomePage() {
         </motion.div>
       )}
 
+      <TopNews news={news} /> {/* Pass news as props */}
       <motion.h1
         className="text-2xl font-extrabold text-center mb-2"
         initial={{ opacity: 0, y: -20 }}
@@ -337,6 +341,7 @@ export default function HomePage() {
               className="w-12 h-12 rounded-full"
               width={48}
               height={48}
+              unoptimized
             />
             <div className="ml-4">
               <h4 className="text-gray-300">{devToProfile.name}</h4>
@@ -450,7 +455,9 @@ export default function HomePage() {
                 width={32}
                 height={32}
                 className="w-8 h-8"
+                unoptimized
               />
+
               <div>
                 <p className="text-gray-300 font-medium">
                   {coin.name} ({coin.symbol})
@@ -480,6 +487,16 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
       >
+        <a href="https://wakatime.com/@355bfc85-b797-4c4e-9f20-9e4f7287ed02">
+          <Image
+            src="https://wakatime.com/badge/user/355bfc85-b797-4c4e-9f20-9e4f7287ed02.svg"
+            width={185}
+            height={37}
+            alt="Total time coded since Oct 29 2021"
+          />
+        </a>
+        <WakaTimeStats />
+
         <h3 className="text-xl font-semibold mb-4">Send Slack Message</h3>
         <div className="space-y-4">
           <input
@@ -512,12 +529,12 @@ export default function HomePage() {
       </motion.div>
 
       {/* News Section - Moved under Mars Weather */}
-      <motion.div
+      {/* <motion.div
         className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-64 mt-4"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
-        style={{ position: 'absolute', top: '24rem', right: '1rem' }}
+        style={{ position: "absolute", top: "20rem", right: "1rem" }}
       >
         <h3 className="text-lg font-semibold mb-2">Top News</h3>
         <div className="overflow-y-auto h-64">
@@ -529,9 +546,13 @@ export default function HomePage() {
                 rel="noopener noreferrer"
                 className="hover:text-blue-300"
               >
-                <h4 className="text-sm font-medium line-clamp-2">{article.title}</h4>
+                <h4 className="text-sm font-medium line-clamp-2">
+                  {article.title}
+                </h4>
               </a>
-              <p className="text-xs text-gray-300 mt-1 line-clamp-2">{article.description}</p>
+              <p className="text-xs text-gray-300 mt-1 line-clamp-2">
+                {article.description}
+              </p>
               <div className="flex justify-between items-center mt-1">
                 <p className="text-xs text-gray-400">{article.source.name}</p>
                 <p className="text-xs text-gray-400">
@@ -541,7 +562,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </motion.div> */}
     </main>
   );
 }

@@ -1,0 +1,1 @@
+export const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%234A5568'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23A0AEC0' font-family='system-ui' font-size='16'%3ENo Image Available%3C/text%3E%3C/svg%3E";
