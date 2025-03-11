@@ -256,6 +256,23 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 text-white flex flex-col items-center p-2">
+      {/* Portfolio Preview Section */}
+      <motion.div
+        className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-full max-w-7xl mb-8"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <h3 className="text-xl font-semibold mb-4">Portfolio</h3>
+        <iframe 
+          src="https://jport1.netlify.app/" 
+          width="100%" 
+          height="500px" 
+          style={{ border: 'none' }}
+          title="Portfolio"
+        />
+      </motion.div>
+
       <div className="absolute top-4 left-4 space-y-4">
         {weatherData && (
           <motion.div
@@ -529,6 +546,23 @@ export default function HomePage() {
             </div>
           )}
         </div>
+      </motion.div>
+
+      {/* Avatar Preview Section */}
+      <motion.div
+        className="bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-full max-w-7xl mt-8"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <h3 className="text-xl font-semibold mb-4">Avatar Creator</h3>
+        <iframe 
+          src="https://avatarjay.netlify.app/" 
+          width="100%" 
+          height="500px" 
+          style={{ border: 'none' }}
+          title="Avatar Creator"
+        />
       </motion.div>
 
       {/* News Section - Moved under Mars Weather */}
