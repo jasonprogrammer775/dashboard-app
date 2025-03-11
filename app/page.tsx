@@ -7,6 +7,9 @@ import TopNews from "./components/TopNews"; // Import TopNews component
 import Location from "./components/Location";
 
 import WakaTimeStats from "./components/WakaTimeStas";
+import LocalBusinesses from './components/LocalBusinesses';
+import TopCities from './components/TopCities';
+
 
 // Define the structure for GitHub user data
 interface GitHubUserData {
@@ -291,12 +294,12 @@ export default function HomePage() {
       </div>
       {marsWeather && (
         <motion.div
-          className="absolute top-4 right-4 bg-white/10 p-4 rounded-lg shadow-lg backdrop-blur-lg w-64"
+          className="absolute top-4 right-4 bg-black/30 p-4 rounded-lg shadow-lg w-64"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <h3 className="text-xl font-semibold">Mars Weather</h3>
+          <h3 className="text-xl font-semibold mb-2">Mars Weather</h3>
           {marsWeather.sol_keys.slice(0, 1).map((sol) => (
             <div key={sol} className="mt-2">
               <p className="text-gray-300">Sol {sol}</p>
@@ -314,7 +317,7 @@ export default function HomePage() {
         </motion.div>
       )}
 
-      <TopNews news={news} /> {/* Pass news as props */}
+      <TopNews news={news} />
       <motion.h1
         className="text-2xl font-extrabold text-center mb-2"
         initial={{ opacity: 0, y: -20 }}
@@ -563,6 +566,39 @@ export default function HomePage() {
           ))}
         </div>
       </motion.div> */}
-    </main>
+      {/* Add after Mars Weather, before the closing main tag */}
+      {marsWeather && (
+        <motion.div
+          className="absolute top-4 right-4 bg-white/10 p-4 rounded-lg shadow-lg "
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          {/* Mars Weather content */}
+        </motion.div>
+      )}
+
+      {/* Add TopCities component */}
+      <motion.div
+        className="absolute top-4 right-72 w-64"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <TopCities />
+      </motion.div>
+
+      {/* Move LocalBusinesses component to the left side */}
+      <motion.div
+        className="absolute top-96 left-4 w-80"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <LocalBusinesses />
+      </motion.div>
+
+      {/* Rest of your components */}
+      </main>
   );
 }
